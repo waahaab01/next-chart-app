@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.css-162wlvu-MuiPaper-root-MuiAppBar-root,
+.css-1m3g8jr-MuiPaper-root-MuiDrawer-paper{
+    background:black !important;
+        color: white !important;
+}
+.css-1pyfj8b-MuiStack-root>:not(style):not(style){
+    display: none;
+}
+.css-1gld6jr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected{
+    background-color: #a16207 !important;
+}
+.css-1gld6jr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected .MuiSvgIcon-root,
+.css-1gld6jr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected .MuiTypography-root,
+.css-feb0vu-MuiTypography-root{
+    color: white !important;
+}
