@@ -45,7 +45,7 @@ const BarChart = () => {
   };
 
   // Dynamically import the Bar component from react-chartjs-2
-  const Bar = dynamic(() => import("react-chartjs-2").then((mod) => mod.Bar), { ssr: false });
+  // const Bar = dynamic(() => import("react-chartjs-2").then((mod) => mod.Bar), { ssr: false });
 
   return <Bar data={data} options={options} />;
 };

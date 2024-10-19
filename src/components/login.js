@@ -1,7 +1,7 @@
 'use client'
 import axios from "axios";
 import { useState } from "react";
-// import FacebookLoginRender from "react-facebook-login/dist/facebook-login-render-props";
+import FacebookLoginRender from "react-facebook-login/dist/facebook-login-render-props";
 import { FaFacebookF, FaGoogle, FaLinkedinIn } from "react-icons/fa";
 import '../styles/global.css'
 
@@ -14,43 +14,45 @@ const Login = ({ handleSwitch }) => {
     const password = e.target.password.value;
 
     // Check if the user already exists
-    const existingUser = JSON.parse(localStorage.getItem("user"));
-    if (existingUser && existingUser.email === email) {
-      alert("User already exists! Please log in.");
-      return;
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser && storedUser.email === email && storedUser.password === password) {
+      localStorage.setItem("isLoggedIn", "true");
+      navigate('/'); // Redirect to dashboard
+    } else {
+      alert("Invalid credentials!");
     }
-
-    // Simulate a signup process (you might want to do this through your backend)
-    localStorage.setItem("user", JSON.stringify({ email, password }));
-    alert("Account created! Please log in.");
-    handleSwitch();
   };
 
   const responseFacebook = async (response) => {
     const { accessToken, userID } = response;
 
     // Send accessToken to your backend or perform any necessary operations
-    try {
-      const res = await axios.post('http://localhost:5000/api/facebook-signup', {
+    axios.get(`https://graph.facebook.com/v16.0/me/adaccounts?access_token=${accessToken}`)
+    .then(res => {
+      const adAccountId = res.data.data[0].id;  // Assuming user has at least one ad account
+
+      // Send accessToken and adAccountId to the backend to trigger Airbyte sync
+      axios.post('http://localhost:5000/api/get-ads', {
         accessToken,
-        userID
+        adAccountId
+      }).then(response => {
+        console.log("Sync triggered: ", response.data); 
+        // After sync, redirect to dashboard to show data
+        navigate('/');
+      }).catch(error => {
+        console.error("Error triggering sync: ", error);
       });
-
-      // Assuming the backend response includes user details
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      alert("Account created with Facebook! Please log in.");
-      handleSwitch();
-    } catch (error) {
-      console.error("Error during Facebook signup:", error);
-    }
+    })
+    .catch(err => {
+      console.error("Error fetching ad account", err);
+    });
   };
-
   return (
     <div className="w-full max-w-sm mx-auto bg-white p-8 shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl rounded-3xl">
       <h1 className="text-3xl font-bold mb-6 text-[#a16207] text-center">Login Here</h1>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center mb-4">
-          {/* <FacebookLoginRender
+          <FacebookLoginRender
             appId="588225660194285" // Your Facebook app ID
             autoLoad={false}
             callback={responseFacebook}
@@ -60,7 +62,7 @@ const Login = ({ handleSwitch }) => {
                 <FaFacebookF />
               </button>
             )}
-          /> */}
+          />
           <a href="#" className="p-2 text-xl text-red-500 transform hover:scale-110 transition-transform">
             <FaGoogle />
           </a>
